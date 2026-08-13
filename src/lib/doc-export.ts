@@ -38,6 +38,10 @@ function mdToHtml(md: string): string {
     }
     flushTable();
     if (!line.trim()) continue;
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+      out.push("<hr />");
+      continue;
+    }
     const h = /^(#{1,6})\s+(.*)$/.exec(line);
     if (h) {
       const level = Math.min(h[1]!.length + 1, 6);
