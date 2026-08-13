@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiGenerateRouteImport } from './routes/api/generate'
+import { Route as AppDataGuruRouteImport } from './routes/app/data-guru'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,37 +35,45 @@ const ApiGenerateRoute = ApiGenerateRouteImport.update({
   path: '/api/generate',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppDataGuruRoute = AppDataGuruRouteImport.update({
+  id: '/data-guru',
+  path: '/data-guru',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/api/generate': typeof ApiGenerateRoute
+  '/app/data-guru': typeof AppDataGuruRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/api/generate': typeof ApiGenerateRoute
+  '/app/data-guru': typeof AppDataGuruRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/api/generate': typeof ApiGenerateRoute
+  '/app/data-guru': typeof AppDataGuruRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/auth' | '/api/generate'
+  fullPaths: '/' | '/app' | '/auth' | '/api/generate' | '/app/data-guru'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/auth' | '/api/generate'
-  id: '__root__' | '/' | '/app' | '/auth' | '/api/generate'
+  to: '/' | '/app' | '/auth' | '/api/generate' | '/app/data-guru'
+  id: '__root__' | '/' | '/app' | '/auth' | '/api/generate' | '/app/data-guru'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRouteRoute: typeof AppRouteRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiGenerateRoute: typeof ApiGenerateRoute
 }
@@ -99,12 +108,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGenerateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/data-guru': {
+      id: '/app/data-guru'
+      path: '/data-guru'
+      fullPath: '/app/data-guru'
+      preLoaderRoute: typeof AppDataGuruRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
+interface AppRouteRouteChildren {
+  AppDataGuruRoute: typeof AppDataGuruRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppDataGuruRoute: AppDataGuruRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRouteRoute: AppRouteRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiGenerateRoute: ApiGenerateRoute,
 }
