@@ -20,8 +20,7 @@ export async function fileToAttachment(file: File, label?: string): Promise<Atta
     try {
       const mammoth = await import("mammoth/mammoth.browser.js");
       const buf = await file.arrayBuffer();
-      const res = await (mammoth as never as { extractRawText: (o: unknown) => Promise<{ value: string }> })
-        .extractRawText({ arrayBuffer: buf });
+      const res = await mammoth.extractRawText({ arrayBuffer: buf });
       return { name, text: res.value };
     } catch {
       return { name, text: "(Isi dokumen tidak dapat dibaca otomatis)" };
