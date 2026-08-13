@@ -59,13 +59,14 @@ function mdToHtml(md: string): string {
 }
 
 function wrapHtml(title: string, body: string, font = "Times New Roman", size = "12pt") {
+  const fontSize = size.replace(/\s+/g, "");
   return `<!DOCTYPE html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${title}</title>
 <style>
 @page { size: A4; margin: 2cm; }
-body { font-family: '${font}', serif; font-size: ${size}; color: #000; }
+body { font-family: '${font}', serif; font-size: ${fontSize}; color: #000; }
 h2,h3,h4 { font-family: '${font}', serif; }
 table { border-collapse: collapse; width: 100%; margin: 8px 0; }
-th, td { border: 1px solid #333; padding: 6px; vertical-align: top; font-size: ${size}; }
+th, td { border: 1px solid #333; padding: 6px; vertical-align: top; font-size: ${fontSize}; }
 th { background: #dbeafe; }
 </style></head><body>${body}</body></html>`;
 }
