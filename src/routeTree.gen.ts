@@ -10,33 +10,136 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRouteRouteImport } from './routes/app/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ApiGenerateRouteImport } from './routes/api/generate'
+import { Route as AppAdminRouteImport } from './routes/app/admin'
+import { Route as AppBuatSoalRouteImport } from './routes/app/buat-soal'
+import { Route as AppDataGuruRouteImport } from './routes/app/data-guru'
+import { Route as AppPerangkatAjarRouteImport } from './routes/app/perangkat-ajar'
+import { Route as AppRpmRouteImport } from './routes/app/rpm'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateRoute = ApiGenerateRouteImport.update({
+  id: '/api/generate',
+  path: '/api/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppBuatSoalRoute = AppBuatSoalRouteImport.update({
+  id: '/buat-soal',
+  path: '/buat-soal',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppDataGuruRoute = AppDataGuruRouteImport.update({
+  id: '/data-guru',
+  path: '/data-guru',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppPerangkatAjarRoute = AppPerangkatAjarRouteImport.update({
+  id: '/perangkat-ajar',
+  path: '/perangkat-ajar',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppRpmRoute = AppRpmRouteImport.update({
+  id: '/rpm',
+  path: '/rpm',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/api/generate': typeof ApiGenerateRoute
+  '/app/admin': typeof AppAdminRoute
+  '/app/buat-soal': typeof AppBuatSoalRoute
+  '/app/data-guru': typeof AppDataGuruRoute
+  '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
+  '/app/rpm': typeof AppRpmRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/api/generate': typeof ApiGenerateRoute
+  '/app/admin': typeof AppAdminRoute
+  '/app/buat-soal': typeof AppBuatSoalRoute
+  '/app/data-guru': typeof AppDataGuruRoute
+  '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
+  '/app/rpm': typeof AppRpmRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/api/generate': typeof ApiGenerateRoute
+  '/app/admin': typeof AppAdminRoute
+  '/app/buat-soal': typeof AppBuatSoalRoute
+  '/app/data-guru': typeof AppDataGuruRoute
+  '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
+  '/app/rpm': typeof AppRpmRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/api/generate'
+    | '/app/admin'
+    | '/app/buat-soal'
+    | '/app/data-guru'
+    | '/app/perangkat-ajar'
+    | '/app/rpm'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/api/generate'
+    | '/app/admin'
+    | '/app/buat-soal'
+    | '/app/data-guru'
+    | '/app/perangkat-ajar'
+    | '/app/rpm'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/auth'
+    | '/api/generate'
+    | '/app/admin'
+    | '/app/buat-soal'
+    | '/app/data-guru'
+    | '/app/perangkat-ajar'
+    | '/app/rpm'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiGenerateRoute: typeof ApiGenerateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +151,90 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate': {
+      id: '/api/generate'
+      path: '/api/generate'
+      fullPath: '/api/generate'
+      preLoaderRoute: typeof ApiGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/admin': {
+      id: '/app/admin'
+      path: '/admin'
+      fullPath: '/app/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/buat-soal': {
+      id: '/app/buat-soal'
+      path: '/buat-soal'
+      fullPath: '/app/buat-soal'
+      preLoaderRoute: typeof AppBuatSoalRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/data-guru': {
+      id: '/app/data-guru'
+      path: '/data-guru'
+      fullPath: '/app/data-guru'
+      preLoaderRoute: typeof AppDataGuruRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/perangkat-ajar': {
+      id: '/app/perangkat-ajar'
+      path: '/perangkat-ajar'
+      fullPath: '/app/perangkat-ajar'
+      preLoaderRoute: typeof AppPerangkatAjarRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/rpm': {
+      id: '/app/rpm'
+      path: '/rpm'
+      fullPath: '/app/rpm'
+      preLoaderRoute: typeof AppRpmRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
+interface AppRouteRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
+  AppBuatSoalRoute: typeof AppBuatSoalRoute
+  AppDataGuruRoute: typeof AppDataGuruRoute
+  AppPerangkatAjarRoute: typeof AppPerangkatAjarRoute
+  AppRpmRoute: typeof AppRpmRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
+  AppBuatSoalRoute: AppBuatSoalRoute,
+  AppDataGuruRoute: AppDataGuruRoute,
+  AppPerangkatAjarRoute: AppPerangkatAjarRoute,
+  AppRpmRoute: AppRpmRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiGenerateRoute: ApiGenerateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
