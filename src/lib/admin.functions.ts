@@ -2,12 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-const nipSchema = z.string().regex(/^\d{8,}$/, "Username/NIP minimal 8 angka");
-
-export function nipToEmail(nip: string) {
-  return `${nip}@gurusatset.app`;
-}
+import { nipToEmail } from "@/lib/nip";
 
 export const listUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -36,7 +31,7 @@ export const createUser = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z
       .object({
-        nip: nipSchema,
+        nip: z.string().regex(/^\d{8,}$/, "Username/NIP minimal 8 angka"),
         password: z.string().min(6, "Password minimal 6 karakter"),
         nama_guru: z.string().trim().max(120).default(""),
         role: z.enum(["guru", "superadmin"]).default("guru"),
