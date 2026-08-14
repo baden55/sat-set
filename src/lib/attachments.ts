@@ -1,6 +1,6 @@
-export type Attachment = { name: string; mediaType?: string; dataUrl?: string; text?: string };
-
 import { sanitizeAiOutput } from "./sanitize-ai";
+
+export type Attachment = { name: string; mediaType?: string; dataUrl?: string; text?: string };
 
 async function toDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
