@@ -1,4 +1,7 @@
-function mdToHtml(md: string): string {
+import { sanitizeAiOutput } from "./sanitize-ai";
+
+function mdToHtml(src: string): string {
+  const md = sanitizeAiOutput(src);
   const lines = md.replace(/\r/g, "").split("\n");
   const out: string[] = [];
   let tableRows: string[][] = [];

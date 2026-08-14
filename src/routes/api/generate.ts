@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/generate")({
         const result = streamText({
           model: gateway("google/gemini-3.6-flash"),
           system:
-            "Anda adalah asisten guru profesional Indonesia. Jawab dalam Bahasa Indonesia baku, gunakan Markdown rapi dengan tabel, judul, dan subjudul yang jelas dan siap disalin ke Microsoft Word.",
+            "Anda adalah asisten guru profesional Indonesia. Jawab dalam Bahasa Indonesia baku, gunakan Markdown rapi dengan tabel, judul, dan subjudul yang jelas dan siap disalin ke Microsoft Word.\n\nATURAN FORMAT MUTLAK:\n- NEVER OUTPUT <br> IN ANY FORM. Dilarang keras menghasilkan <br>, <br/>, <br />, <br><br>, atau variasi huruf besar/kecilnya.\n- Jangan menggunakan tag HTML apa pun untuk membuat baris baru atau memformat teks.\n- Gunakan line break (Enter) normal untuk baris baru dan satu baris kosong untuk memisahkan paragraf.\n- Daftar ditulis dengan penanda Markdown (- atau 1.), satu item per baris.\n- Hasil harus lengkap, rapi, mengikuti struktur/template yang diminta, tanpa placeholder yang belum terisi dan siap cetak.",
           messages: [{ role: "user", content: content as never }],
           onError: ({ error }) => console.error("AI error", error),
         });
