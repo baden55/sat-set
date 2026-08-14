@@ -1,3 +1,5 @@
+import { sanitizeAiOutput } from "./sanitize-ai";
+
 export type Attachment = { name: string; mediaType?: string; dataUrl?: string; text?: string };
 
 async function toDataUrl(file: File): Promise<string> {
@@ -62,7 +64,7 @@ export async function generateAI(
     const { done, value } = await reader.read();
     if (done) break;
     full += decoder.decode(value, { stream: true });
-    onChunk(full);
+    onChunk(sanitizeAiOutput(full));
   }
-  return full;
+  return sanitizeAiOutput(full);
 }
