@@ -103,7 +103,16 @@ function AuthPage() {
           </form>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            Akun dibuat oleh SuperAdmin. Hubungi admin sekolah bila belum memiliki akun.
+            Buat Akun Hubungi Kang Baden atau{" "}
+            <a
+              href="https://wa.me/628156000155?text=Halo+Kang+Baden%2C+saya+ingin+order+kode+aktivasi+Guru+Satset.+Mohon+informasinya+untuk+proses+order.+Terima+kasih.&utm_source=chatgpt.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary underline underline-offset-2"
+            >
+              Klik disini
+            </a>
+            .
           </p>
         </CardContent>
       </Card>
