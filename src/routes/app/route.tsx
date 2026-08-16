@@ -3,12 +3,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
   BookOpenCheck,
+  ExternalLink,
   FileSpreadsheet,
+  FolderDown,
   GraduationCap,
+  History,
+  KeyRound,
   ListChecks,
   Loader2,
   LogOut,
   Menu,
+  Wrench,
   Users,
 } from "lucide-react";
 
@@ -29,6 +34,17 @@ const menus = [
   { to: "/app/perangkat-ajar", label: "Perangkat Ajar", icon: FileSpreadsheet },
   { to: "/app/rpm", label: "RPM", icon: BookOpenCheck },
   { to: "/app/buat-soal", label: "Buat Soal", icon: ListChecks },
+  { to: "/app/riwayat", label: "Riwayat", icon: History },
+  { to: "/app/ganti-password", label: "Ganti Password", icon: KeyRound },
+] as const;
+
+const externalMenus = [
+  { href: "https://lynk.id/baden", label: "Tools", icon: Wrench },
+  {
+    href: "https://drive.google.com/drive/folders/19cV1D7SNmrDvrPNuZMN2CIJosl0HLJhZ?usp=sharing",
+    label: "Download Template",
+    icon: FolderDown,
+  },
 ] as const;
 
 function AppLayout() {
@@ -117,6 +133,19 @@ function AppLayout() {
                 <m.icon className="size-4" />
                 {m.label}
               </Link>
+            ))}
+            {externalMenus.map((m) => (
+              <a
+                key={m.href}
+                href={m.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+              >
+                <m.icon className="size-4" />
+                <span className="flex-1">{m.label}</span>
+                <ExternalLink className="size-3.5 text-muted-foreground" />
+              </a>
             ))}
             <Button variant="outline" size="sm" onClick={signOut} className="mt-2 sm:hidden">
               <LogOut className="size-4" /> Keluar
