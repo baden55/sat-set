@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Loader2, Sparkles, Upload } from "lucide-react";
+import { CheckCircle2, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { FieldSelect } from "@/components/FieldSelect";
@@ -11,7 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BERKAS_PERANGKAT, KELAS_FASE, MATA_PELAJARAN, SISTEM_SEKOLAH } from "@/lib/constants";
 import { fileToAttachment, generateAI, type Attachment } from "@/lib/attachments";
+import { saveGeneration, useInvalidateHistory } from "@/lib/history";
 import { promptPerangkatAjar } from "@/lib/prompts";
+import {
+  deleteUserFile,
+  downloadUserFile,
+  uploadUserFile,
+  useUserFiles,
+} from "@/lib/user-files";
 import { useProfile } from "@/lib/use-profile";
 import { useSession } from "@/lib/use-session";
 
@@ -41,9 +48,40 @@ function PerangkatAjarPage() {
     jpTahun: "",
     sistemSekolah: "",
   });
-  const [files, setFiles] = useState<Record<string, File | null>>({});
   const [hasil, setHasil] = useState("");
   const [loading, setLoading] = useState(false);
+  const [busyLabel, setBusyLabel] = useState<string | null>(null);
+  const invalidateHistory = useInvalidateHistory();
+  const userId = session?.user.id;
+  const { data: saved, refetch } = useUserFiles(userId, BERKAS_PERANGKAT);
+
+  async function onPick(label: string, file: File | null) {
+    if (!file || !userId) return;
+    setBusyLabel(label);
+    try {
+      await uploadUserFile(userId, label, file);
+      await refetch();
+      toast.success(`${label} tersimpan di akun Anda`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal mengunggah file");
+    } finally {
+      setBusyLabel(null);
+    }
+  }
+
+  async function onDelete(label: string, path: string) {
+    setBusyLabel(label);
+    try {
+      await deleteUserFile(path);
+      await refetch();
+      toast.success(`${label} dihapus`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal menghapus file");
+    } finally {
+      setBusyLabel(null);
+    }
+  }
+
 
   async function generate() {
     if (!profile?.nama_guru) {
@@ -59,11 +97,28 @@ function PerangkatAjarPage() {
     try {
       const attachments: Attachment[] = [];
       for (const label of BERKAS_PERANGKAT) {
-        const f = files[label];
-        if (f) attachments.push(await fileToAttachment(f, label));
+        const stored = saved?.[label];
+        if (!stored) continue;
+        try {
+          attachments.push(await fileToAttachment(await downloadUserFile(stored), label));
+        } catch {
+          /* lewati file yang gagal dibaca */
+        }
       }
       const token = session?.access_token ?? "";
-      await generateAI(token, promptPerangkatAjar(profile, form), attachments, setHasil);
+      const teks = await generateAI(
+        token,
+        promptPerangkatAjar(profile, form),
+        attachments,
+        setHasil,
+      );
+      await saveGeneration(
+        userId,
+        "Perangkat Ajar",
+        `Perangkat Ajar ${form.mapel} ${form.kelasFase}`.trim(),
+        teks,
+      );
+      invalidateHistory(userId);
       toast.success("Perangkat ajar berhasil dibuat");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Terjadi kesalahan");
@@ -127,21 +182,51 @@ function PerangkatAjarPage() {
             <Upload className="size-4 text-primary" /> Lampiran Format & Dokumen (opsional)
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Unggah PDF, Word, atau Excel agar hasil AI mengikuti format sekolah Anda.
+            Unggah PDF, Word, atau Excel agar hasil AI mengikuti format sekolah Anda. File tersimpan
+            otomatis di akun Anda, jadi tidak perlu unggah ulang setiap login.
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {BERKAS_PERANGKAT.map((label) => (
-              <div key={label} className="space-y-2">
-                <Label className="text-xs">{label}</Label>
-                <Input
-                  type="file"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,image/*"
-                  onChange={(e) =>
-                    setFiles((s) => ({ ...s, [label]: e.target.files?.[0] ?? null }))
-                  }
-                />
-              </div>
-            ))}
+            {BERKAS_PERANGKAT.map((label) => {
+              const stored = saved?.[label];
+              return (
+                <div key={label} className="space-y-2">
+                  <Label className="text-xs">{label}</Label>
+                  {stored ? (
+                    <div className="flex items-center gap-2 rounded-md border border-border/70 bg-muted/40 px-3 py-2">
+                      <CheckCircle2 className="size-4 shrink-0 text-primary" />
+                      <span className="min-w-0 flex-1 truncate text-xs" title={stored.name}>
+                        {stored.name}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Hapus ${label}`}
+                        disabled={busyLabel === label}
+                        onClick={() => onDelete(label, stored.path)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  ) : null}
+                  <Input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,image/*"
+                    disabled={busyLabel === label}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] ?? null;
+                      e.target.value = "";
+                      void onPick(label, f);
+                    }}
+                  />
+                  {stored ? (
+                    <p className="text-[11px] text-muted-foreground">
+                      Pilih file baru untuk mengganti.
+                    </p>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
@@ -150,6 +235,9 @@ function PerangkatAjarPage() {
         {loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
         Generate Perangkat Ajar
       </Button>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Jika Materi Perangkat ajar yang dihasikan tidak sesuai dengan tema lakukan generate ulang
+      </p>
 
       <GeneratorPanel hasil={hasil} loading={loading} filename="Perangkat-Ajar" />
     </div>
