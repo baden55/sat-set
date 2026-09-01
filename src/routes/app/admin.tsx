@@ -66,6 +66,71 @@ function AdminPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
+  const [fileName, setFileName] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function onPickFile(file: File) {
+    try {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+      const sheetName = wb.SheetNames[0];
+      if (!sheetName) throw new Error("Sheet kosong");
+      const sheet = wb.Sheets[sheetName];
+      if (!sheet) throw new Error("Sheet kosong");
+      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
+      const rows: BulkRow[] = json
+        .map((r) => {
+          const role = pick(r, ["peran", "role"]).toLowerCase();
+          return {
+            nama_guru: pick(r, ["nama"]),
+            nip: pick(r, ["nip", "username"]).replace(/\D/g, ""),
+            role: role.includes("super") || role.includes("admin") ? "superadmin" : "guru",
+            password: pick(r, ["password", "sandi"]),
+          } satisfies BulkRow;
+        })
+        .filter((r) => r.nip || r.password);
+      if (!rows.length) throw new Error("Tidak ada data valid pada file");
+      setBulkRows(rows);
+      setFileName(file.name);
+      toast.success(`${rows.length} baris terbaca dari Excel`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal membaca file Excel");
+    }
+  }
+
+  async function downloadTemplate() {
+    const XLSX = await import("xlsx");
+    const ws = XLSX.utils.json_to_sheet([
+      { nama: "Budi Santoso", nip: "19800101", peran: "guru", password: "Rahasia123" },
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Akun");
+    XLSX.writeFile(wb, "template-akun-massal.xlsx");
+  }
+
+  const invalidRows = bulkRows.filter(
+    (r) => !/^\d{8,}$/.test(r.nip) || (r.password?.length ?? 0) < 6,
+  );
+
+  const bulk = useMutation({
+    mutationFn: () =>
+      createUsersBulk({ data: { rows: bulkRows.filter((r) => !invalidRows.includes(r)) } }),
+    onSuccess: (res) => {
+      toast.success(`${res.success} dari ${res.total} akun berhasil dibuat`);
+      if (res.failed.length) {
+        toast.error(
+          `Gagal: ${res.failed.map((f) => `${f.nip} (${f.error ?? "error"})`).join(", ")}`,
+        );
+      }
+      setBulkRows([]);
+      setFileName("");
+      if (fileRef.current) fileRef.current.value = "";
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const remove = useMutation({
     mutationFn: (userId: string) => deleteUser({ data: { userId } }),
     onSuccess: () => {
@@ -74,6 +139,7 @@ function AdminPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   return (
     <div>
