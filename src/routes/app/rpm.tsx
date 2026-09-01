@@ -73,7 +73,7 @@ function RpmPage() {
         session?.user.id,
         "RPM",
         `RPM ${form.mapel} — ${form.materiPokok}`.trim(),
-        typeof teks === "string" ? teks : "",
+        teks,
       );
       invalidateHistory(session?.user.id);
       toast.success("RPM berhasil dibuat");
