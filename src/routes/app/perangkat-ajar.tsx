@@ -235,6 +235,9 @@ function PerangkatAjarPage() {
         {loading ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
         Generate Perangkat Ajar
       </Button>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Jika Materi Perangkat ajar yang dihasikan tidak sesuai dengan tema lakukan generate ulang
+      </p>
 
       <GeneratorPanel hasil={hasil} loading={loading} filename="Perangkat-Ajar" />
     </div>
