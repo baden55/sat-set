@@ -199,6 +199,85 @@ function AdminPage() {
       </Card>
 
       <Card className="mt-4 border-border/70 shadow-soft">
+        <CardContent className="space-y-4 p-6">
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <FileSpreadsheet className="size-5 text-primary" /> Buat Akun Massal dari Excel
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Unggah file Excel (.xlsx/.xls/.csv) dengan kolom: <b>nama</b>, <b>nip</b>,{" "}
+              <b>peran</b>, <b>password</b>.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="sm:max-w-xs"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void onPickFile(f);
+              }}
+            />
+            <Button variant="outline" size="sm" onClick={() => void downloadTemplate()}>
+              <Download className="size-4" /> Unduh Template Excel
+            </Button>
+          </div>
+
+          {bulkRows.length > 0 && (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {fileName} — {bulkRows.length} baris
+                {invalidRows.length > 0 && `, ${invalidRows.length} baris tidak valid (dilewati)`}
+              </p>
+              <div className="max-h-72 overflow-auto rounded-xl border border-border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nama</TableHead>
+                      <TableHead>NIP</TableHead>
+                      <TableHead>Peran</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bulkRows.map((r, i) => {
+                      const bad = invalidRows.includes(r);
+                      return (
+                        <TableRow key={`${r.nip}-${i}`}>
+                          <TableCell>{r.nama_guru || "-"}</TableCell>
+                          <TableCell className="font-medium">{r.nip || "-"}</TableCell>
+                          <TableCell className="capitalize">{r.role}</TableCell>
+                          <TableCell className={bad ? "text-destructive" : "text-muted-foreground"}>
+                            {bad ? "Tidak valid" : "Siap"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              <Button
+                onClick={() => bulk.mutate()}
+                disabled={bulk.isPending || bulkRows.length === invalidRows.length}
+              >
+                {bulk.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <UserPlus className="size-4" />
+                )}
+                Buat {bulkRows.length - invalidRows.length} Akun
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+
+
+      <Card className="mt-4 border-border/70 shadow-soft">
         <CardContent className="p-2 sm:p-4">
           {users.isLoading ? (
             <div className="flex items-center gap-2 p-6 text-sm text-muted-foreground">
