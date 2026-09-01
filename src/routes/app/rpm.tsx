@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { KELAS_FASE, MATA_PELAJARAN, PENDEKATAN, SEMESTER } from "@/lib/constants";
 import { generateAI } from "@/lib/attachments";
+import { saveGeneration, useInvalidateHistory } from "@/lib/history";
 import { promptRPM } from "@/lib/prompts";
 import { useProfile } from "@/lib/use-profile";
 import { useSession } from "@/lib/use-session";

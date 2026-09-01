@@ -19,6 +19,7 @@ import {
   MATA_PELAJARAN,
 } from "@/lib/constants";
 import { generateAI } from "@/lib/attachments";
+import { saveGeneration, useInvalidateHistory } from "@/lib/history";
 import { promptSoal } from "@/lib/prompts";
 import { useProfile } from "@/lib/use-profile";
 import { useSession } from "@/lib/use-session";
