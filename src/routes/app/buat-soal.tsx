@@ -43,6 +43,7 @@ export const Route = createFileRoute("/app/buat-soal")({
 function BuatSoalPage() {
   const { session } = useSession();
   const { data: profile } = useProfile(session?.user.id);
+  const invalidateHistory = useInvalidateHistory();
   const [form, setForm] = useState({
     jenjang: "",
     mapel: "",
@@ -71,7 +72,19 @@ function BuatSoalPage() {
     setLoading(true);
     setHasil("");
     try {
-      await generateAI(session?.access_token ?? "", promptSoal(profile, form), [], setHasil);
+      const teks = await generateAI(
+        session?.access_token ?? "",
+        promptSoal(profile, form),
+        [],
+        setHasil,
+      );
+      await saveGeneration(
+        session?.user.id,
+        "Buat Soal",
+        `Kisi-Kisi & Soal ${form.mapel} ${form.kelasFase}`.trim(),
+        teks,
+      );
+      invalidateHistory(session?.user.id);
       toast.success("Kisi-kisi dan soal berhasil dibuat");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Terjadi kesalahan");
