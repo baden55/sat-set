@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Loader2, ShieldCheck, Trash2, UserPlus } from "lucide-react";
+import { useRef, useState } from "react";
+import { Download, FileSpreadsheet, Loader2, ShieldCheck, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { FieldSelect } from "@/components/FieldSelect";
@@ -17,7 +17,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createUser, deleteUser, listUsers } from "@/lib/admin.functions";
+import { createUser, createUsersBulk, deleteUser, listUsers } from "@/lib/admin.functions";
+
+type BulkRow = { nama_guru: string; nip: string; role: "guru" | "superadmin"; password: string };
+
+function pick(row: Record<string, unknown>, keys: string[]) {
+  for (const k of Object.keys(row)) {
+    const norm = k.toLowerCase().trim();
+    if (keys.some((c) => norm === c || norm.includes(c))) return String(row[k] ?? "").trim();
+  }
+  return "";
+}
+
 
 export const Route = createFileRoute("/app/admin")({
   ssr: false,
