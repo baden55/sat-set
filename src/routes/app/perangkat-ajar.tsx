@@ -48,9 +48,40 @@ function PerangkatAjarPage() {
     jpTahun: "",
     sistemSekolah: "",
   });
-  const [files, setFiles] = useState<Record<string, File | null>>({});
   const [hasil, setHasil] = useState("");
   const [loading, setLoading] = useState(false);
+  const [busyLabel, setBusyLabel] = useState<string | null>(null);
+  const invalidateHistory = useInvalidateHistory();
+  const userId = session?.user.id;
+  const { data: saved, refetch } = useUserFiles(userId, BERKAS_PERANGKAT);
+
+  async function onPick(label: string, file: File | null) {
+    if (!file || !userId) return;
+    setBusyLabel(label);
+    try {
+      await uploadUserFile(userId, label, file);
+      await refetch();
+      toast.success(`${label} tersimpan di akun Anda`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal mengunggah file");
+    } finally {
+      setBusyLabel(null);
+    }
+  }
+
+  async function onDelete(label: string, path: string) {
+    setBusyLabel(label);
+    try {
+      await deleteUserFile(path);
+      await refetch();
+      toast.success(`${label} dihapus`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal menghapus file");
+    } finally {
+      setBusyLabel(null);
+    }
+  }
+
 
   async function generate() {
     if (!profile?.nama_guru) {
