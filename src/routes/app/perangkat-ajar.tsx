@@ -97,11 +97,28 @@ function PerangkatAjarPage() {
     try {
       const attachments: Attachment[] = [];
       for (const label of BERKAS_PERANGKAT) {
-        const f = files[label];
-        if (f) attachments.push(await fileToAttachment(f, label));
+        const stored = saved?.[label];
+        if (!stored) continue;
+        try {
+          attachments.push(await fileToAttachment(await downloadUserFile(stored), label));
+        } catch {
+          /* lewati file yang gagal dibaca */
+        }
       }
       const token = session?.access_token ?? "";
-      await generateAI(token, promptPerangkatAjar(profile, form), attachments, setHasil);
+      const teks = await generateAI(
+        token,
+        promptPerangkatAjar(profile, form),
+        attachments,
+        setHasil,
+      );
+      await saveGeneration(
+        userId,
+        "Perangkat Ajar",
+        `Perangkat Ajar ${form.mapel} ${form.kelasFase}`.trim(),
+        teks,
+      );
+      invalidateHistory(userId);
       toast.success("Perangkat ajar berhasil dibuat");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Terjadi kesalahan");
