@@ -182,21 +182,51 @@ function PerangkatAjarPage() {
             <Upload className="size-4 text-primary" /> Lampiran Format & Dokumen (opsional)
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Unggah PDF, Word, atau Excel agar hasil AI mengikuti format sekolah Anda.
+            Unggah PDF, Word, atau Excel agar hasil AI mengikuti format sekolah Anda. File tersimpan
+            otomatis di akun Anda, jadi tidak perlu unggah ulang setiap login.
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {BERKAS_PERANGKAT.map((label) => (
-              <div key={label} className="space-y-2">
-                <Label className="text-xs">{label}</Label>
-                <Input
-                  type="file"
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,image/*"
-                  onChange={(e) =>
-                    setFiles((s) => ({ ...s, [label]: e.target.files?.[0] ?? null }))
-                  }
-                />
-              </div>
-            ))}
+            {BERKAS_PERANGKAT.map((label) => {
+              const stored = saved?.[label];
+              return (
+                <div key={label} className="space-y-2">
+                  <Label className="text-xs">{label}</Label>
+                  {stored ? (
+                    <div className="flex items-center gap-2 rounded-md border border-border/70 bg-muted/40 px-3 py-2">
+                      <CheckCircle2 className="size-4 shrink-0 text-primary" />
+                      <span className="min-w-0 flex-1 truncate text-xs" title={stored.name}>
+                        {stored.name}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Hapus ${label}`}
+                        disabled={busyLabel === label}
+                        onClick={() => onDelete(label, stored.path)}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  ) : null}
+                  <Input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,image/*"
+                    disabled={busyLabel === label}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] ?? null;
+                      e.target.value = "";
+                      void onPick(label, f);
+                    }}
+                  />
+                  {stored ? (
+                    <p className="text-[11px] text-muted-foreground">
+                      Pilih file baru untuk mengganti.
+                    </p>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
