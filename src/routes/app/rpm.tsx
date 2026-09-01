@@ -36,6 +36,7 @@ export const Route = createFileRoute("/app/rpm")({
 function RpmPage() {
   const { session } = useSession();
   const { data: profile } = useProfile(session?.user.id);
+  const invalidateHistory = useInvalidateHistory();
   const [form, setForm] = useState({
     tanggal: "",
     mapel: "",
@@ -62,7 +63,19 @@ function RpmPage() {
     setLoading(true);
     setHasil("");
     try {
-      await generateAI(session?.access_token ?? "", promptRPM(profile, form), [], setHasil);
+      const teks = await generateAI(
+        session?.access_token ?? "",
+        promptRPM(profile, form),
+        [],
+        setHasil,
+      );
+      await saveGeneration(
+        session?.user.id,
+        "RPM",
+        `RPM ${form.mapel} — ${form.materiPokok}`.trim(),
+        typeof teks === "string" ? teks : "",
+      );
+      invalidateHistory(session?.user.id);
       toast.success("RPM berhasil dibuat");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Terjadi kesalahan");
