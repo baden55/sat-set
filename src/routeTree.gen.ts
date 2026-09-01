@@ -16,7 +16,9 @@ import { Route as ApiGenerateRouteImport } from './routes/api/generate'
 import { Route as AppAdminRouteImport } from './routes/app/admin'
 import { Route as AppBuatSoalRouteImport } from './routes/app/buat-soal'
 import { Route as AppDataGuruRouteImport } from './routes/app/data-guru'
+import { Route as AppGantiPasswordRouteImport } from './routes/app/ganti-password'
 import { Route as AppPerangkatAjarRouteImport } from './routes/app/perangkat-ajar'
+import { Route as AppRiwayatRouteImport } from './routes/app/riwayat'
 import { Route as AppRpmRouteImport } from './routes/app/rpm'
 
 const IndexRoute = IndexRouteImport.update({
@@ -54,9 +56,19 @@ const AppDataGuruRoute = AppDataGuruRouteImport.update({
   path: '/data-guru',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppGantiPasswordRoute = AppGantiPasswordRouteImport.update({
+  id: '/ganti-password',
+  path: '/ganti-password',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppPerangkatAjarRoute = AppPerangkatAjarRouteImport.update({
   id: '/perangkat-ajar',
   path: '/perangkat-ajar',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppRiwayatRoute = AppRiwayatRouteImport.update({
+  id: '/riwayat',
+  path: '/riwayat',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppRpmRoute = AppRpmRouteImport.update({
@@ -73,7 +85,9 @@ export interface FileRoutesByFullPath {
   '/app/admin': typeof AppAdminRoute
   '/app/buat-soal': typeof AppBuatSoalRoute
   '/app/data-guru': typeof AppDataGuruRoute
+  '/app/ganti-password': typeof AppGantiPasswordRoute
   '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
+  '/app/riwayat': typeof AppRiwayatRoute
   '/app/rpm': typeof AppRpmRoute
 }
 export interface FileRoutesByTo {
@@ -84,7 +98,9 @@ export interface FileRoutesByTo {
   '/app/admin': typeof AppAdminRoute
   '/app/buat-soal': typeof AppBuatSoalRoute
   '/app/data-guru': typeof AppDataGuruRoute
+  '/app/ganti-password': typeof AppGantiPasswordRoute
   '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
+  '/app/riwayat': typeof AppRiwayatRoute
   '/app/rpm': typeof AppRpmRoute
 }
 export interface FileRoutesById {
@@ -96,7 +112,9 @@ export interface FileRoutesById {
   '/app/admin': typeof AppAdminRoute
   '/app/buat-soal': typeof AppBuatSoalRoute
   '/app/data-guru': typeof AppDataGuruRoute
+  '/app/ganti-password': typeof AppGantiPasswordRoute
   '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
+  '/app/riwayat': typeof AppRiwayatRoute
   '/app/rpm': typeof AppRpmRoute
 }
 export interface FileRouteTypes {
@@ -109,7 +127,9 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/buat-soal'
     | '/app/data-guru'
+    | '/app/ganti-password'
     | '/app/perangkat-ajar'
+    | '/app/riwayat'
     | '/app/rpm'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -120,7 +140,9 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/buat-soal'
     | '/app/data-guru'
+    | '/app/ganti-password'
     | '/app/perangkat-ajar'
+    | '/app/riwayat'
     | '/app/rpm'
   id:
     | '__root__'
@@ -131,7 +153,9 @@ export interface FileRouteTypes {
     | '/app/admin'
     | '/app/buat-soal'
     | '/app/data-guru'
+    | '/app/ganti-password'
     | '/app/perangkat-ajar'
+    | '/app/riwayat'
     | '/app/rpm'
   fileRoutesById: FileRoutesById
 }
@@ -193,11 +217,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDataGuruRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/ganti-password': {
+      id: '/app/ganti-password'
+      path: '/ganti-password'
+      fullPath: '/app/ganti-password'
+      preLoaderRoute: typeof AppGantiPasswordRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/perangkat-ajar': {
       id: '/app/perangkat-ajar'
       path: '/perangkat-ajar'
       fullPath: '/app/perangkat-ajar'
       preLoaderRoute: typeof AppPerangkatAjarRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/riwayat': {
+      id: '/app/riwayat'
+      path: '/riwayat'
+      fullPath: '/app/riwayat'
+      preLoaderRoute: typeof AppRiwayatRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/rpm': {
@@ -214,7 +252,9 @@ interface AppRouteRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppBuatSoalRoute: typeof AppBuatSoalRoute
   AppDataGuruRoute: typeof AppDataGuruRoute
+  AppGantiPasswordRoute: typeof AppGantiPasswordRoute
   AppPerangkatAjarRoute: typeof AppPerangkatAjarRoute
+  AppRiwayatRoute: typeof AppRiwayatRoute
   AppRpmRoute: typeof AppRpmRoute
 }
 
@@ -222,7 +262,9 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppBuatSoalRoute: AppBuatSoalRoute,
   AppDataGuruRoute: AppDataGuruRoute,
+  AppGantiPasswordRoute: AppGantiPasswordRoute,
   AppPerangkatAjarRoute: AppPerangkatAjarRoute,
+  AppRiwayatRoute: AppRiwayatRoute,
   AppRpmRoute: AppRpmRoute,
 }
 
