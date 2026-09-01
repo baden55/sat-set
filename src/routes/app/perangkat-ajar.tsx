@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Loader2, Sparkles, Upload } from "lucide-react";
+import { CheckCircle2, Loader2, Sparkles, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { FieldSelect } from "@/components/FieldSelect";
@@ -11,7 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BERKAS_PERANGKAT, KELAS_FASE, MATA_PELAJARAN, SISTEM_SEKOLAH } from "@/lib/constants";
 import { fileToAttachment, generateAI, type Attachment } from "@/lib/attachments";
+import { saveGeneration, useInvalidateHistory } from "@/lib/history";
 import { promptPerangkatAjar } from "@/lib/prompts";
+import {
+  deleteUserFile,
+  downloadUserFile,
+  uploadUserFile,
+  useUserFiles,
+} from "@/lib/user-files";
 import { useProfile } from "@/lib/use-profile";
 import { useSession } from "@/lib/use-session";
 
