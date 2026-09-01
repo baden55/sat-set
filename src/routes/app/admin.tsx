@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Loader2, ShieldCheck, Trash2, UserPlus } from "lucide-react";
+import { useRef, useState } from "react";
+import { Download, FileSpreadsheet, Loader2, ShieldCheck, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { FieldSelect } from "@/components/FieldSelect";
@@ -17,7 +17,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createUser, deleteUser, listUsers } from "@/lib/admin.functions";
+import { createUser, createUsersBulk, deleteUser, listUsers } from "@/lib/admin.functions";
+
+type BulkRow = { nama_guru: string; nip: string; role: "guru" | "superadmin"; password: string };
+
+function pick(row: Record<string, unknown>, keys: string[]) {
+  for (const k of Object.keys(row)) {
+    const norm = k.toLowerCase().trim();
+    if (keys.some((c) => norm === c || norm.includes(c))) return String(row[k] ?? "").trim();
+  }
+  return "";
+}
+
 
 export const Route = createFileRoute("/app/admin")({
   ssr: false,
@@ -55,6 +66,71 @@ function AdminPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
+  const [fileName, setFileName] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function onPickFile(file: File) {
+    try {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+      const sheetName = wb.SheetNames[0];
+      if (!sheetName) throw new Error("Sheet kosong");
+      const sheet = wb.Sheets[sheetName];
+      if (!sheet) throw new Error("Sheet kosong");
+      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
+      const rows: BulkRow[] = json
+        .map((r) => {
+          const role = pick(r, ["peran", "role"]).toLowerCase();
+          return {
+            nama_guru: pick(r, ["nama"]),
+            nip: pick(r, ["nip", "username"]).replace(/\D/g, ""),
+            role: role.includes("super") || role.includes("admin") ? "superadmin" : "guru",
+            password: pick(r, ["password", "sandi"]),
+          } satisfies BulkRow;
+        })
+        .filter((r) => r.nip || r.password);
+      if (!rows.length) throw new Error("Tidak ada data valid pada file");
+      setBulkRows(rows);
+      setFileName(file.name);
+      toast.success(`${rows.length} baris terbaca dari Excel`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal membaca file Excel");
+    }
+  }
+
+  async function downloadTemplate() {
+    const XLSX = await import("xlsx");
+    const ws = XLSX.utils.json_to_sheet([
+      { nama: "Budi Santoso", nip: "19800101", peran: "guru", password: "Rahasia123" },
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Akun");
+    XLSX.writeFile(wb, "template-akun-massal.xlsx");
+  }
+
+  const invalidRows = bulkRows.filter(
+    (r) => !/^\d{8,}$/.test(r.nip) || (r.password?.length ?? 0) < 6,
+  );
+
+  const bulk = useMutation({
+    mutationFn: () =>
+      createUsersBulk({ data: { rows: bulkRows.filter((r) => !invalidRows.includes(r)) } }),
+    onSuccess: (res) => {
+      toast.success(`${res.success} dari ${res.total} akun berhasil dibuat`);
+      if (res.failed.length) {
+        toast.error(
+          `Gagal: ${res.failed.map((f) => `${f.nip} (${f.error ?? "error"})`).join(", ")}`,
+        );
+      }
+      setBulkRows([]);
+      setFileName("");
+      if (fileRef.current) fileRef.current.value = "";
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const remove = useMutation({
     mutationFn: (userId: string) => deleteUser({ data: { userId } }),
     onSuccess: () => {
@@ -63,6 +139,7 @@ function AdminPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
   return (
     <div>
@@ -120,6 +197,85 @@ function AdminPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Card className="mt-4 border-border/70 shadow-soft">
+        <CardContent className="space-y-4 p-6">
+          <div>
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <FileSpreadsheet className="size-5 text-primary" /> Buat Akun Massal dari Excel
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Unggah file Excel (.xlsx/.xls/.csv) dengan kolom: <b>nama</b>, <b>nip</b>,{" "}
+              <b>peran</b>, <b>password</b>.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="sm:max-w-xs"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void onPickFile(f);
+              }}
+            />
+            <Button variant="outline" size="sm" onClick={() => void downloadTemplate()}>
+              <Download className="size-4" /> Unduh Template Excel
+            </Button>
+          </div>
+
+          {bulkRows.length > 0 && (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {fileName} — {bulkRows.length} baris
+                {invalidRows.length > 0 && `, ${invalidRows.length} baris tidak valid (dilewati)`}
+              </p>
+              <div className="max-h-72 overflow-auto rounded-xl border border-border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nama</TableHead>
+                      <TableHead>NIP</TableHead>
+                      <TableHead>Peran</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bulkRows.map((r, i) => {
+                      const bad = invalidRows.includes(r);
+                      return (
+                        <TableRow key={`${r.nip}-${i}`}>
+                          <TableCell>{r.nama_guru || "-"}</TableCell>
+                          <TableCell className="font-medium">{r.nip || "-"}</TableCell>
+                          <TableCell className="capitalize">{r.role}</TableCell>
+                          <TableCell className={bad ? "text-destructive" : "text-muted-foreground"}>
+                            {bad ? "Tidak valid" : "Siap"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+              <Button
+                onClick={() => bulk.mutate()}
+                disabled={bulk.isPending || bulkRows.length === invalidRows.length}
+              >
+                {bulk.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <UserPlus className="size-4" />
+                )}
+                Buat {bulkRows.length - invalidRows.length} Akun
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+
 
       <Card className="mt-4 border-border/70 shadow-soft">
         <CardContent className="p-2 sm:p-4">

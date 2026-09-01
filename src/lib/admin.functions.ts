@@ -60,7 +60,61 @@ export const createUser = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const createUsersBulk = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        rows: z
+          .array(
+            z.object({
+              nip: z.string().regex(/^\d{8,}$/, "NIP minimal 8 angka"),
+              password: z.string().min(6, "Password minimal 6 karakter"),
+              nama_guru: z.string().trim().max(120).default(""),
+              role: z.enum(["guru", "superadmin"]).default("guru"),
+            }),
+          )
+          .min(1)
+          .max(500),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "superadmin",
+    });
+    if (!isAdmin) throw new Error("Akses ditolak");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const results: { nip: string; ok: boolean; error?: string }[] = [];
+
+    for (const row of data.rows) {
+      const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+        email: nipToEmail(row.nip),
+        password: row.password,
+        email_confirm: true,
+      });
+      if (error || !created?.user) {
+        results.push({ nip: row.nip, ok: false, error: error?.message ?? "Gagal membuat akun" });
+        continue;
+      }
+      await supabaseAdmin
+        .from("profiles")
+        .insert({ id: created.user.id, nip: row.nip, nama_guru: row.nama_guru });
+      await supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, role: row.role });
+      results.push({ nip: row.nip, ok: true });
+    }
+
+    return {
+      total: results.length,
+      success: results.filter((r) => r.ok).length,
+      failed: results.filter((r) => !r.ok),
+    };
+  });
+
 export const deleteUser = createServerFn({ method: "POST" })
+
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ userId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
