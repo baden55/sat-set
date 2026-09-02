@@ -34,25 +34,61 @@ Nama : ${g.nama_kepala_sekolah}
 NIP : ${g.nip_kepala_sekolah}
 
 TUGAS AI
-Berdasarkan seluruh dokumen yang saya lampirkan (Format, Capaian Pembelajaran, dan Kalender Pendidikan), buatkan perangkat pembelajaran berikut secara berurutan. Setiap dokumen harus saling berkaitan dan menggunakan hasil dokumen sebelumnya sebagai dasar penyusunannya.
-1. Analisis Capaian Pembelajaran (CP) — mengikuti format Analisis CP yang dilampirkan, berdasarkan CP yang dilampirkan.
-2. Tujuan Pembelajaran (TP) — mengikuti format TP, berdasarkan Analisis CP.
-3. Analisis Minggu Efektif — mengikuti format yang dilampirkan, berdasarkan Kalender Pendidikan.
-4. Analisis Hari Efektif — berdasarkan Analisis Minggu Efektif dan Kalender Pendidikan.
-5. Program Tahunan (Prota) — berdasarkan Analisis Minggu Efektif, Tujuan Pembelajaran, dan Kalender Pendidikan.
-6. Program Semester (Promes) — berdasarkan Prota, TP, dan Kalender Pendidikan, mengikuti format Promes, seluruh tabel dibuat berwarna sesuai contoh.
-7. KKTP — berdasarkan Tujuan Pembelajaran, mengikuti format yang dilampirkan.
-8. ATP — berdasarkan CP dan Promes, mengikuti format ATP yang dilampirkan.
+Berdasarkan seluruh dokumen yang saya lampirkan (Format/Template, Capaian Pembelajaran, dan Kalender Pendidikan), buatkan perangkat pembelajaran berikut secara berurutan. TEMPLATE YANG SAYA LAMPIRKAN ADALAH MASTER FORMAT: struktur, urutan bagian, judul, tabel, jumlah & nama kolom, posisi identitas, dan area tanda tangan WAJIB direplikasi persis. Dilarang membuat desain dokumen baru.
+
+ATURAN FORMAT MUTLAK
+- Output hanya Markdown sederhana. DILARANG memakai tag HTML apa pun (termasuk <br>).
+- Setiap dokumen dimulai dengan judul level satu: "# NAMA DOKUMEN" (hanya judul dokumen yang memakai satu tanda pagar) agar tiap dokumen menjadi file terpisah.
+- Semua data yang berbentuk daftar/matriks WAJIB disajikan sebagai tabel Markdown (pipa |), bukan paragraf panjang. Satu sel = satu data; jangan menggabung beberapa kolom menjadi satu paragraf.
+- Setiap baris tabel harus memiliki jumlah kolom yang sama persis dengan headernya. Jangan menambah/mengurangi kolom. Jangan memakai baris kosong di tengah tabel.
+- Isi sel ditulis ringkas satu baris (tanpa enter di dalam sel); pemisah antar poin dalam sel memakai "; ".
+
+BLOK IDENTITAS (wajib ada di awal setiap dokumen, sebelum tabel isi)
+Satuan Pendidikan : ${g.nama_sekolah}
+Mata Pelajaran : ${f.mapel}
+Kelas / Fase : ${f.kelasFase}
+Semester : (isi sesuai dokumen)
+Alokasi Waktu : ${f.jpMinggu} per minggu (${f.jpTahun} per tahun)
+Tahun Pelajaran : (isi sesuai Kalender Pendidikan)
+
+DOKUMEN YANG HARUS DIBUAT DAN STRUKTUR KOLOMNYA (nama kolom tidak boleh diubah)
+1. # ANALISIS CAPAIAN PEMBELAJARAN (CP)
+   Tabel: | Elemen | Capaian Pembelajaran |
+2. # TUJUAN PEMBELAJARAN (TP)
+   Tabel: | No | Elemen | Tujuan Pembelajaran | Materi | Alokasi Waktu (JP) |
+3. # RINCIAN MINGGU EFEKTIF
+   Tabel: | Bulan | Jumlah Minggu | Jumlah Minggu Tidak Efektif | Minggu Efektif |
+   Sertakan baris rekap: "Jumlah 1" (semester 1), "Jumlah 2" (semester 2), dan "Total Setahun". Penjumlahan harus benar.
+4. # RINCIAN HARI EFEKTIF
+   Tabel: | Bulan | Hari Mengajar | Hari Libur Nasional & Cuti Bersama | Kegiatan Non Pembelajaran | Hari Efektif |
+   Sertakan rekap: "Jumlah Semester 1", "Jumlah Semester 2", dan "Total Satu Tahun Pelajaran". Penjumlahan harus benar.
+5. # PROGRAM TAHUNAN (PROTA)
+   Tabel: | Semester | No | Tujuan Pembelajaran / Materi | Alokasi Waktu (JP) | Keterangan |
+6. # PROGRAM SEMESTER (PROMES)
+   Tabel: | No | Tujuan Pembelajaran / Materi | Alokasi Waktu (JP) | Juli | Agustus | September | Oktober | November | Desember | Keterangan |
+   (untuk semester 2 gunakan Januari–Juni). Tandai minggu pelaksanaan dengan "V".
+7. # KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN (KKTP)
+   Tabel: | No | Tujuan Pembelajaran | Kriteria Ketercapaian | Perlu Bimbingan | Cukup | Baik | Sangat Baik |
+8. # ALUR TUJUAN PEMBELAJARAN (ATP)
+   Tabel: | KELOMPOK TP | URUTAN ALUR BELAJAR PESERTA DIDIK | MODUL | JP |
 
 KETENTUAN PENYUSUNAN
-- Mengikuti format contoh 100% dan tidak mengubah format asli.
-- Setiap dokumen dibuat dalam bagian terpisah dengan judul jelas (### 1. ANALISIS CP, dst).
-- Seluruh dokumen harus saling berkaitan.
-- Menggunakan Bahasa Indonesia baku sesuai Kurikulum Merdeka.
-- Perhitungan minggu efektif, hari efektif, dan alokasi JP harus akurat.
-- Seluruh tabel harus rapi, mudah dibaca, dan siap cetak.
-- Setiap dokumen ditutup dengan bagian pengesahan Kepala Sekolah (${g.nama_kepala_sekolah}, NIP ${g.nip_kepala_sekolah}) dan Guru (${g.nama_guru}, NIP ${g.nip_guru}).`;
+- Seluruh dokumen saling berkaitan: TP dari Analisis CP; Minggu/Hari Efektif dari Kalender Pendidikan; Prota & Promes dari TP dan Minggu Efektif; KKTP dari TP; ATP dari CP dan Promes.
+- Bahasa Indonesia baku sesuai Kurikulum Merdeka. Perhitungan JP, minggu efektif, dan hari efektif harus akurat dan konsisten antar dokumen.
+- Nomor urut harus berurutan dan tidak boleh ada data yang hilang atau terpotong.
+
+BAGIAN PENGESAHAN (wajib di akhir SETIAP dokumen, persis format berikut, di luar tabel)
+Mengetahui,
+Kepala Sekolah                    Guru Mata Pelajaran
+
+${g.nama_kepala_sekolah}
+NIP. ${g.nip_kepala_sekolah}      ${g.nama_guru}
+NIP. ${g.nip_guru}
+
+VALIDASI SEBELUM MENJAWAB
+Periksa ulang: semua tabel memiliki header lengkap; jumlah kolom tiap baris sama; tidak ada sel kosong tanpa alasan; rekap/total benar; tidak ada tag HTML; setiap dokumen punya identitas dan pengesahan.`;
 }
+
 
 export function promptRPM(
   g: DataGuru,
