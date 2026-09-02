@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ApiGenerateRouteImport } from './routes/api/generate'
+import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppAdminRouteImport } from './routes/app/admin'
 import { Route as AppBuatSoalRouteImport } from './routes/app/buat-soal'
 import { Route as AppDataGuruRouteImport } from './routes/app/data-guru'
@@ -40,6 +41,11 @@ const ApiGenerateRoute = ApiGenerateRouteImport.update({
   id: '/api/generate',
   path: '/api/generate',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
@@ -89,10 +95,10 @@ export interface FileRoutesByFullPath {
   '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
   '/app/riwayat': typeof AppRiwayatRoute
   '/app/rpm': typeof AppRpmRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/api/generate': typeof ApiGenerateRoute
   '/app/admin': typeof AppAdminRoute
@@ -102,6 +108,7 @@ export interface FileRoutesByTo {
   '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
   '/app/riwayat': typeof AppRiwayatRoute
   '/app/rpm': typeof AppRpmRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +123,7 @@ export interface FileRoutesById {
   '/app/perangkat-ajar': typeof AppPerangkatAjarRoute
   '/app/riwayat': typeof AppRiwayatRoute
   '/app/rpm': typeof AppRpmRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,10 +139,10 @@ export interface FileRouteTypes {
     | '/app/perangkat-ajar'
     | '/app/riwayat'
     | '/app/rpm'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/app'
     | '/auth'
     | '/api/generate'
     | '/app/admin'
@@ -144,6 +152,7 @@ export interface FileRouteTypes {
     | '/app/perangkat-ajar'
     | '/app/riwayat'
     | '/app/rpm'
+    | '/app'
   id:
     | '__root__'
     | '/'
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/app/perangkat-ajar'
     | '/app/riwayat'
     | '/app/rpm'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -195,6 +205,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/generate'
       preLoaderRoute: typeof ApiGenerateRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/app/admin': {
       id: '/app/admin'
@@ -256,6 +273,7 @@ interface AppRouteRouteChildren {
   AppPerangkatAjarRoute: typeof AppPerangkatAjarRoute
   AppRiwayatRoute: typeof AppRiwayatRoute
   AppRpmRoute: typeof AppRpmRoute
+  AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
@@ -266,6 +284,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppPerangkatAjarRoute: AppPerangkatAjarRoute,
   AppRiwayatRoute: AppRiwayatRoute,
   AppRpmRoute: AppRpmRoute,
+  AppIndexRoute: AppIndexRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
