@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as DropdownTestRouteImport } from './routes/dropdown-test'
 import { Route as ApiGenerateRouteImport } from './routes/api/generate'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppAdminRouteImport } from './routes/app/admin'
@@ -36,11 +35,6 @@ const AppRouteRoute = AppRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DropdownTestRoute = DropdownTestRouteImport.update({
-  id: '/dropdown-test',
-  path: '/dropdown-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGenerateRoute = ApiGenerateRouteImport.update({
@@ -93,7 +87,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/dropdown-test': typeof DropdownTestRoute
   '/api/generate': typeof ApiGenerateRoute
   '/app/admin': typeof AppAdminRoute
   '/app/buat-soal': typeof AppBuatSoalRoute
@@ -107,7 +100,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/dropdown-test': typeof DropdownTestRoute
   '/api/generate': typeof ApiGenerateRoute
   '/app/admin': typeof AppAdminRoute
   '/app/buat-soal': typeof AppBuatSoalRoute
@@ -123,7 +115,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/dropdown-test': typeof DropdownTestRoute
   '/api/generate': typeof ApiGenerateRoute
   '/app/admin': typeof AppAdminRoute
   '/app/buat-soal': typeof AppBuatSoalRoute
@@ -140,7 +131,6 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
-    | '/dropdown-test'
     | '/api/generate'
     | '/app/admin'
     | '/app/buat-soal'
@@ -154,7 +144,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/dropdown-test'
     | '/api/generate'
     | '/app/admin'
     | '/app/buat-soal'
@@ -169,7 +158,6 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
-    | '/dropdown-test'
     | '/api/generate'
     | '/app/admin'
     | '/app/buat-soal'
@@ -185,7 +173,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  DropdownTestRoute: typeof DropdownTestRoute
   ApiGenerateRoute: typeof ApiGenerateRoute
 }
 
@@ -210,13 +197,6 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dropdown-test': {
-      id: '/dropdown-test'
-      path: '/dropdown-test'
-      fullPath: '/dropdown-test'
-      preLoaderRoute: typeof DropdownTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/generate': {
@@ -315,7 +295,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  DropdownTestRoute: DropdownTestRoute,
   ApiGenerateRoute: ApiGenerateRoute,
 }
 export const routeTree = rootRouteImport
