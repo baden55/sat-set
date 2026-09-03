@@ -136,7 +136,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
-    clearChunkRecoveryGuard();
+    const clearTimer = setTimeout(clearChunkRecoveryGuard, 10_000);
 
     const onPreloadError = (event: Event) => {
       event.preventDefault();
@@ -149,6 +149,7 @@ function RootComponent() {
     window.addEventListener("vite:preloadError", onPreloadError);
     window.addEventListener("unhandledrejection", onRejection);
     return () => {
+      clearTimeout(clearTimer);
       window.removeEventListener("vite:preloadError", onPreloadError);
       window.removeEventListener("unhandledrejection", onRejection);
     };
