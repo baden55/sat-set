@@ -110,12 +110,21 @@ function AppLayout() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-6 px-4 py-6">
+      {open ? (
+        <button
+          type="button"
+          aria-label="Tutup menu"
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-20 bg-foreground/30 lg:hidden"
+        />
+      ) : null}
+
+      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-6 overflow-x-hidden px-4 py-6">
         <aside
           className={cn(
-            "w-full shrink-0 lg:block lg:w-60",
+            "shrink-0 lg:block lg:w-60",
             open ? "block" : "hidden",
-            "absolute inset-x-4 top-[72px] z-20 rounded-2xl border border-border bg-card p-3 shadow-soft lg:static lg:inset-auto lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none",
+            "fixed inset-x-4 top-[72px] z-30 max-h-[calc(100dvh-88px)] overflow-y-auto rounded-2xl border border-border bg-card p-3 shadow-soft lg:static lg:inset-auto lg:max-h-none lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none",
           )}
         >
           <nav className="flex flex-col gap-1">
