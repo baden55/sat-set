@@ -66,5 +66,11 @@ export async function generateAI(
     full += decoder.decode(value, { stream: true });
     onChunk(sanitizeAiOutput(full));
   }
-  return sanitizeAiOutput(full);
+  const hasil = sanitizeAiOutput(full);
+  if (!hasil.trim()) {
+    throw new Error(
+      "AI tidak mengirimkan hasil. Kemungkinan kuota/kredit AI habis. Silakan isi ulang kredit lalu coba lagi.",
+    );
+  }
+  return hasil;
 }
