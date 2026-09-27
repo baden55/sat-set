@@ -46,6 +46,7 @@ export async function fileToAttachment(file: File, label?: string): Promise<Atta
 const CACHE_PREFIX = "gs-ai-cache:";
 const CACHE_MAX = 30;
 const inflight = new Map<string, Promise<string>>();
+const shownThisSession = new Set<string>();
 
 async function hashRequest(prompt: string, attachments: Attachment[]) {
   const raw = JSON.stringify([
@@ -121,7 +122,9 @@ export async function generateAI(
   onChunk: (text: string) => void,
 ) {
   const key = await hashRequest(prompt, attachments);
-  const cached = readCache(key);
+  // Klik Generate ulang pada input yang sama di sesi ini = minta hasil baru.
+  const cached = shownThisSession.has(key) ? null : readCache(key);
+  shownThisSession.add(key);
   if (cached && cached.trim()) {
     onChunk(cached);
     return cached;
