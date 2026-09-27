@@ -43,7 +43,43 @@ export async function fileToAttachment(file: File, label?: string): Promise<Atta
   return { name, text: await file.text() };
 }
 
-export async function generateAI(
+const CACHE_PREFIX = "gs-ai-cache:";
+const CACHE_MAX = 30;
+const inflight = new Map<string, Promise<string>>();
+const shownThisSession = new Set<string>();
+
+async function hashRequest(prompt: string, attachments: Attachment[]) {
+  const raw = JSON.stringify([
+    prompt,
+    attachments.map((a) => [a.name, a.mediaType ?? "", a.dataUrl ?? "", a.text ?? ""]),
+  ]);
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function readCache(key: string): string | null {
+  try {
+    return localStorage.getItem(CACHE_PREFIX + key);
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(key: string, value: string) {
+  try {
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith(CACHE_PREFIX));
+    if (keys.length >= CACHE_MAX) {
+      keys.slice(0, keys.length - CACHE_MAX + 1).forEach((k) => localStorage.removeItem(k));
+    }
+    localStorage.setItem(CACHE_PREFIX + key, value);
+  } catch {
+    /* storage penuh — abaikan cache */
+  }
+}
+
+async function requestAI(
   token: string,
   prompt: string,
   attachments: Attachment[],
@@ -73,4 +109,38 @@ export async function generateAI(
     );
   }
   return hasil;
+}
+
+/**
+ * Generate dengan cache: input & lampiran identik memakai hasil tersimpan
+ * (tanpa kredit AI), dan klik ganda saat proses berjalan tidak membuat request baru.
+ */
+export async function generateAI(
+  token: string,
+  prompt: string,
+  attachments: Attachment[],
+  onChunk: (text: string) => void,
+) {
+  const key = await hashRequest(prompt, attachments);
+  // Klik Generate ulang pada input yang sama di sesi ini = minta hasil baru.
+  const cached = shownThisSession.has(key) ? null : readCache(key);
+  shownThisSession.add(key);
+  if (cached && cached.trim()) {
+    onChunk(cached);
+    return cached;
+  }
+  const running = inflight.get(key);
+  if (running) {
+    const r = await running;
+    onChunk(r);
+    return r;
+  }
+  const p = requestAI(token, prompt, attachments, onChunk)
+    .then((hasil) => {
+      writeCache(key, hasil);
+      return hasil;
+    })
+    .finally(() => inflight.delete(key));
+  inflight.set(key, p);
+  return p;
 }
